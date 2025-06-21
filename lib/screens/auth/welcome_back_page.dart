@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:ecommerce_int2/api_service.dart';
 import 'package:ecommerce_int2/app_properties.dart';
+import 'package:ecommerce_int2/screens/auth/register_page.dart';
 import 'package:ecommerce_int2/screens/main/main_page.dart';
 import 'package:flutter/material.dart';
 
@@ -55,6 +56,38 @@ class _WelcomeBackPageState extends State<WelcomeBackPage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget goToRegister = Padding(
+      padding: const EdgeInsets.only(bottom: 30.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            "Don't have an account? ",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14.0,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => RegisterPage()),
+              );
+            },
+            child: Text(
+              "Register",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14.0,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
     Widget welcomeBack = Text(
       'Welcome Back,',
       style: TextStyle(
@@ -224,6 +257,7 @@ class _WelcomeBackPageState extends State<WelcomeBackPage> {
                 loginForm,
                 Spacer(flex: 2),
                 forgotPassword,
+                goToRegister
               ],
             ),
           ),

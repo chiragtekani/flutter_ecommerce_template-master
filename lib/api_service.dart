@@ -34,7 +34,7 @@ class ApiService {
 
   static Future<http.Response> customerRegister(
       Map<String, dynamic> body) async {
-    return http.post(
+    final response = await http.post(
       Uri.parse('$baseUrl/customers/register'),
       headers: {
         ...(await getHeaders()),
@@ -42,6 +42,16 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      final token = data['token'] ?? data['access_token'];
+      if (token != null) {
+        await saveToken(token);
+      }
+    }
+
+    return response;
   }
 
   static Future<http.Response> customerLogin(Map<String, dynamic> body) async {
@@ -90,6 +100,20 @@ class ApiService {
     );
   }
 
+  static Future<http.Response> getShopsByVillage(int villageId) async {
+    return http.get(
+      Uri.parse('$baseUrl/locations/villages/$villageId/shops'),
+      headers: await getHeaders(),
+    );
+  }
+
+  static Future<http.Response> getProductsByShop(int shopId) async {
+    return http.get(
+      Uri.parse('$baseUrl/vendors/${shopId}/products'),
+      headers: await getHeaders(),
+    );
+  }
+
   static Future<http.Response> addComplaint(Map<String, dynamic> body) async {
     return http.post(
       Uri.parse('$baseUrl/complaints'),
@@ -129,6 +153,30 @@ class ApiService {
         'Content-Type': 'application/json',
       },
       body: jsonEncode(body),
+    );
+  }
+
+  /// Fetch all districts
+  static Future<http.Response> getDistricts() async {
+    return http.get(
+      Uri.parse('$baseUrl/locations/districts'),
+      headers: await getHeaders(),
+    );
+  }
+
+  /// Fetch talukas by district ID
+  static Future<http.Response> getTalukas(int districtId) async {
+    return http.get(
+      Uri.parse('$baseUrl/locations/districts/$districtId/talukas'),
+      headers: await getHeaders(),
+    );
+  }
+
+  /// Fetch villages by taluka ID
+  static Future<http.Response> getVillages(int talukaId) async {
+    return http.get(
+      Uri.parse('$baseUrl/locations/talukas/$talukaId/villages'),
+      headers: await getHeaders(),
     );
   }
 

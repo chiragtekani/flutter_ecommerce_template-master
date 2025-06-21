@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ecommerce_int2/api_service.dart';
 import 'package:ecommerce_int2/app_properties.dart';
+import 'package:ecommerce_int2/screens/complaint/my_complaints.dart';
 import 'package:ecommerce_int2/screens/faq_page.dart';
 import 'package:ecommerce_int2/screens/payment/payment_page.dart';
 import 'package:ecommerce_int2/screens/settings/settings_page.dart';
@@ -172,13 +173,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Divider(),
                 ListTile(
-                  title: Text('FAQ'),
-                  subtitle: Text('Questions and Answer'),
-                  leading: Image.asset('assets/icons/faq.png'),
+                  title: Text('My Complaints'),
+                  subtitle: Text('View your submitted complaints'),
+                  leading: Icon(Icons.report_problem, color: Colors.orange),
                   trailing: Icon(Icons.chevron_right, color: yellow),
-                  onTap: () => Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_) => FaqPage())),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => MyComplaintsPage()),
+                    );
+                  },
                 ),
+                Divider(),
                 Divider(),
               ],
             ),
