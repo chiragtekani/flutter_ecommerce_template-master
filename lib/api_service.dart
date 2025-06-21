@@ -66,7 +66,8 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final token = data['token'] ?? data['access_token'];
+      final token = data['data']['token'] ?? data['access_token'];
+    
       if (token != null) {
         await saveToken(token);
       }
@@ -102,7 +103,7 @@ class ApiService {
 
   static Future<http.Response> getShopsByVillage(int villageId) async {
     return http.get(
-      Uri.parse('$baseUrl/locations/villages/$villageId/shops'),
+      Uri.parse('$baseUrl/villages/$villageId/vendors'),
       headers: await getHeaders(),
     );
   }

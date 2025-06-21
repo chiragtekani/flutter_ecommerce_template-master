@@ -33,6 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
     fetchDistricts();
   }
 
+
   Future<void> fetchDistricts() async {
     final response = await ApiService.getDistricts();
     if (response.statusCode == 200) {
@@ -58,7 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final response = await ApiService.getVillages(talukaId);
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
-      setState(() => talukas = decoded['data']['villages']);
+      setState(() => villages = decoded['data']['villages']);
     } else {
       print('Failed to load villages: ${response.statusCode}');
     }
@@ -184,6 +185,17 @@ class _RegisterPageState extends State<RegisterPage> {
                         DropdownButtonFormField<int>(
                           value: selectedDistrict,
                           hint: Text('Select District'),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 14),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          dropdownColor: Colors.white,
                           items: districts
                               .map<DropdownMenuItem<int>>((d) =>
                                   DropdownMenuItem<int>(
@@ -204,6 +216,17 @@ class _RegisterPageState extends State<RegisterPage> {
                         DropdownButtonFormField<int>(
                           value: selectedTaluka,
                           hint: Text('Select Taluka'),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 14),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          dropdownColor: Colors.white,
                           items: talukas
                               .map<DropdownMenuItem<int>>((t) =>
                                   DropdownMenuItem<int>(
@@ -222,6 +245,17 @@ class _RegisterPageState extends State<RegisterPage> {
                         DropdownButtonFormField<int>(
                           value: selectedVillage,
                           hint: Text('Select Village'),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 14),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          dropdownColor: Colors.white,
                           items: villages
                               .map<DropdownMenuItem<int>>((v) =>
                                   DropdownMenuItem<int>(
