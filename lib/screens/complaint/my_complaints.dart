@@ -21,13 +21,15 @@ class _MyComplaintsPageState extends State<MyComplaintsPage> {
     try {
       final profileResponse = await ApiService.getCustomerProfile();
       if (profileResponse.statusCode == 200) {
-        final profileData = jsonDecode(profileResponse.body);
+        var profileData = jsonDecode(profileResponse.body);
+        profileData = profileData['data']['customer'];
         final customerId = profileData['id'];
 
         final complaintsResponse =
             await ApiService.getCustomerComplaints(customerId);
         if (complaintsResponse.statusCode == 200) {
-          final complaintList = jsonDecode(complaintsResponse.body);
+          var complaintList = jsonDecode(complaintsResponse.body);
+          complaintList = complaintList['data']['complaints'];
           setState(() {
             complaints = complaintList;
             isLoading = false;

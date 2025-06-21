@@ -1,4 +1,6 @@
+import 'package:ecommerce_int2/api_service.dart';
 import 'package:ecommerce_int2/app_properties.dart';
+import 'package:ecommerce_int2/screens/auth/welcome_back_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,15 +11,17 @@ class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key, required this.profile}) : super(key: key);
 
   Future<void> _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
+    await ApiService.removeToken();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Logged out successfully')),
     );
 
-    // Optional: Navigate to login or welcome screen
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    // Navigate to WelcomeBackPage and remove all previous routes
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => WelcomeBackPage()),
+      (Route<dynamic> route) => false,
+    );
   }
 
   @override

@@ -9,21 +9,43 @@ class AddComplaintScreen extends StatefulWidget {
 
 class _AddComplaintScreenState extends State<AddComplaintScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController shopController = TextEditingController();
-  final TextEditingController pinController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController complaintController = TextEditingController();
+  final nameController = TextEditingController();
+  final pinController = TextEditingController();
+  final addressController = TextEditingController();
+  final complaintController = TextEditingController();
+
+  List<dynamic> districts = [];
+  List<dynamic> talukas = [];
+  List<dynamic> villages = [];
+  List<dynamic> shops = [];
+
+  int? selectedDistrict;
+  int? selectedTaluka;
+  int? selectedVillage;
+  int? selectedShop;
 
   bool isLoading = false;
-
-  List<dynamic> villages = [];
-  int? selectedVillage;
 
   @override
   void initState() {
     super.initState();
-    // fetchVillages(); // Replace with actual taluka ID if needed
+    fetchDistricts();
+  }
+
+  Future<void> fetchDistricts() async {
+    final response = await ApiService.getDistricts();
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      setState(() => districts = decoded['data']);
+    }
+  }
+
+  Future<void> fetchTalukas(int districtId) async {
+    final response = await ApiService.getTalukas(districtId);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      setState(() => talukas = decoded['data']['talukas']);
+    }
   }
 
   Future<void> fetchVillages(int talukaId) async {
@@ -31,48 +53,58 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       setState(() => villages = decoded['data']['villages']);
-    } else {
-      print('Failed to load villages: ${response.statusCode}');
+    }
+  }
+
+  Future<void> fetchShops(int villageId) async {
+    final response = await ApiService.getShopsByVillage(villageId);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      setState(() => shops = decoded['data']['vendors']);
     }
   }
 
   void _submitComplaint() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      if (selectedVillage == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Please select a village"),
-          backgroundColor: Colors.red,
-        ));
-        return;
-      }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-      setState(() => isLoading = true);
+    if (selectedVillage == null || selectedShop == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Please select village and shop"),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
 
-      final body = {
-        "customer_name": nameController.text,
-        "village_id": selectedVillage,
-        "shop_name": shopController.text,
-        "pin_code": pinController.text,
-        "address": addressController.text,
-        "complaint": complaintController.text,
-      };
+    setState(() => isLoading = true);
 
-      final response = await ApiService.addComplaint(body);
+    final body = {
+      "customer_name": nameController.text,
+      "village_id": selectedVillage,
+      "district_id": selectedDistrict,
+      "vendor_id": selectedShop,
+      "taluka_id": selectedTaluka,
+      "shop_name": shops
+          .firstWhere((shop) => shop['id'] == selectedShop)['name'], // optional
+      "pin_code": pinController.text,
+      "address": addressController.text,
+      "complaint": complaintController.text,
+    };
 
-      setState(() => isLoading = false);
+    final response = await ApiService.addComplaint(body);
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Complaint submitted successfully!"),
-          backgroundColor: Colors.green,
-        ));
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Failed to submit complaint"),
-          backgroundColor: Colors.red,
-        ));
-      }
+    setState(() => isLoading = false);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Complaint submitted successfully!"),
+        backgroundColor: Colors.green,
+      ));
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Failed to submit complaint"),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 
@@ -86,55 +118,80 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: "Customer Name"),
-                validator: (val) => val!.isEmpty ? "Required" : null,
-              ),
+              _buildTextField(nameController, "Customer Name"),
               SizedBox(height: 12),
-              DropdownButtonFormField<int>(
-                value: selectedVillage,
-                hint: Text("Select Village"),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                ),
-                items: villages
-                    .map((v) => DropdownMenuItem<int>(
-                          value: v['id'] as int,
-                          child: Text(v['name'] as String),
-                        ))
-                    .toList(),
-                onChanged: (value) {
+              _buildDropdown<int>(
+                label: "Select District",
+                value: selectedDistrict,
+                items: districts,
+                itemLabel: 'name',
+                onChanged: (val) {
                   setState(() {
-                    selectedVillage = value;
+                    selectedDistrict = val;
+                    selectedTaluka = null;
+                    selectedVillage = null;
+                    selectedShop = null;
+                    talukas = [];
+                    villages = [];
+                    shops = [];
                   });
+                  fetchTalukas(val!);
                 },
-                validator: (value) =>
-                    value == null ? "Please select a village" : null,
               ),
               SizedBox(height: 12),
-              TextFormField(
-                controller: shopController,
-                decoration: InputDecoration(labelText: "Shop Name"),
-                validator: (val) => val!.isEmpty ? "Required" : null,
+              _buildDropdown<int>(
+                label: "Select Taluka",
+                value: selectedTaluka,
+                items: talukas,
+                itemLabel: 'name',
+                onChanged: selectedDistrict == null
+                    ? null
+                    : (val) {
+                        setState(() {
+                          selectedTaluka = val;
+                          selectedVillage = null;
+                          selectedShop = null;
+                          villages = [];
+                          shops = [];
+                        });
+                        fetchVillages(val!);
+                      },
               ),
-              TextFormField(
-                controller: pinController,
-                decoration: InputDecoration(labelText: "Pin Code"),
-                validator: (val) => val!.isEmpty ? "Required" : null,
+              SizedBox(height: 12),
+              _buildDropdown<int>(
+                label: "Select Village",
+                value: selectedVillage,
+                items: villages,
+                itemLabel: 'name',
+                onChanged: selectedTaluka == null
+                    ? null
+                    : (val) {
+                        setState(() {
+                          selectedVillage = val;
+                          selectedShop = null;
+                          shops = [];
+                        });
+                        fetchShops(val!);
+                      },
               ),
-              TextFormField(
-                controller: addressController,
-                decoration: InputDecoration(labelText: "Address"),
-                validator: (val) => val!.isEmpty ? "Required" : null,
+              SizedBox(height: 12),
+              _buildDropdown<int>(
+                label: "Select Shop",
+                value: selectedShop,
+                items: shops,
+                itemLabel: 'name',
+                onChanged: selectedVillage == null
+                    ? null
+                    : (val) {
+                        setState(() {
+                          selectedShop = val;
+                        });
+                      },
               ),
-              TextFormField(
-                controller: complaintController,
-                decoration: InputDecoration(labelText: "Complaint"),
-                maxLines: 3,
-                validator: (val) => val!.isEmpty ? "Required" : null,
-              ),
+              SizedBox(height: 12),
+              _buildTextField(pinController, "Pin Code"),
+              _buildTextField(addressController, "Address"),
+              _buildTextField(complaintController, "Complaint", maxLines: 3),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: isLoading ? null : _submitComplaint,
@@ -146,6 +203,47 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label,
+      {int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+        ),
+        validator: (val) => val!.isEmpty ? "Required" : null,
+      ),
+    );
+  }
+
+  Widget _buildDropdown<T>({
+    required String label,
+    required T? value,
+    required List<dynamic> items,
+    required String itemLabel,
+    required void Function(T?)? onChanged,
+  }) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      hint: Text(label),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12),
+      ),
+      items: items
+          .map<DropdownMenuItem<T>>((item) => DropdownMenuItem<T>(
+                value: item['id'] as T,
+                child: Text(item[itemLabel]),
+              ))
+          .toList(),
+      onChanged: onChanged,
+      validator: (val) => val == null ? "Required" : null,
     );
   }
 }

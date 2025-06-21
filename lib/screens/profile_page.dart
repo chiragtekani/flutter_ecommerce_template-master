@@ -30,7 +30,8 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final response = await ApiService.getCustomerProfile();
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        var data = jsonDecode(response.body);
+        data = data['data']['customer'];
         setState(() {
           userName = data['name'] ?? 'Unknown';
           email = data['email'] ?? '';
@@ -96,82 +97,22 @@ class _ProfilePageState extends State<ProfilePage> {
                           ],
                         ),
                 ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 16.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: transparentYellow,
-                        blurRadius: 4,
-                        spreadRadius: 1,
-                        offset: Offset(0, 1),
-                      )
-                    ],
-                  ),
-                  height: 150,
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            IconButton(
-                              icon: Image.asset('assets/icons/truck.png'),
-                              onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => TrackingPage())),
-                            ),
-                            Text('Shipped',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            IconButton(
-                              icon: Image.asset('assets/icons/card.png'),
-                              onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => PaymentPage())),
-                            ),
-                            Text('Payment',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            IconButton(
-                              icon: Image.asset('assets/icons/contact_us.png'),
-                              onPressed: () {},
-                            ),
-                            Text('Support',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                ListTile(
-                  title: Text('Settings'),
-                  subtitle: Text('Privacy and logout'),
-                  leading: Image.asset('assets/icons/settings_icon.png',
-                      fit: BoxFit.scaleDown, width: 30, height: 30),
-                  trailing: Icon(Icons.chevron_right, color: yellow),
-                  onTap: navigateToSettings,
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('Help & Support'),
-                  subtitle: Text('Help center and legal support'),
-                  leading: Image.asset('assets/icons/support.png'),
-                  trailing: Icon(Icons.chevron_right, color: yellow),
-                ),
-                Divider(),
+                // ListTile(
+                //   title: Text('Settings'),
+                //   subtitle: Text('Privacy and logout'),
+                //   leading: Image.asset('assets/icons/settings_icon.png',
+                //       fit: BoxFit.scaleDown, width: 30, height: 30),
+                //   trailing: Icon(Icons.chevron_right, color: yellow),
+                //   onTap: navigateToSettings,
+                // ),
+                // Divider(),
+                // ListTile(
+                //   title: Text('Help & Support'),
+                //   subtitle: Text('Help center and legal support'),
+                //   leading: Image.asset('assets/icons/support.png'),
+                //   trailing: Icon(Icons.chevron_right, color: yellow),
+                // ),
+                // Divider(),
                 ListTile(
                   title: Text('My Complaints'),
                   subtitle: Text('View your submitted complaints'),
@@ -183,7 +124,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   },
                 ),
-                Divider(),
                 Divider(),
               ],
             ),

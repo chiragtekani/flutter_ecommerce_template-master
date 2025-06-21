@@ -1,4 +1,5 @@
 import 'package:ecommerce_int2/screens/complaint/add_complaint_screen.dart';
+import 'package:ecommerce_int2/screens/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -33,7 +34,12 @@ class CustomBottomBar extends StatelessWidget {
           ),
           IconButton(
             icon: Image.asset('assets/icons/profile_icon.png'),
-            onPressed: () => controller.animateTo(3),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProfilePage()),
+              );
+            },
           ),
         ],
       ),
