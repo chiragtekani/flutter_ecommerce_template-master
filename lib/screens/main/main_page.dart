@@ -53,6 +53,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       setState(() => villages = decoded['data']['villages']);
+    } else {
+      print('Failed to load villages: ${response.statusCode}');
     }
   }
 
@@ -60,7 +62,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     final response = await ApiService.getShopsByVillage(villageId);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      setState(() => shops = data['data']);
+      setState(() => shops = data['data']['vendors']);
     }
   }
 
@@ -161,16 +163,17 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                                 shop['id'] as int);
                             if (response.statusCode == 200) {
                               final data = jsonDecode(response.body);
-                              final productList = (data['data'] as List)
-                                  .map((item) => Product(
-                                        item['image_url'],
-                                        item['name'],
-                                        item['description'],
-                                        double.tryParse(
-                                                item['price'].toString()) ??
-                                            0.0,
-                                      ))
-                                  .toList();
+                              final productList =
+                                  (data['data']['products'] as List)
+                                      .map((item) => Product(
+                                            item['image_url'],
+                                            item['name'],
+                                            item['description'],
+                                            double.tryParse(
+                                                    item['price'].toString()) ??
+                                                0.0,
+                                          ))
+                                      .toList();
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -211,7 +214,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               ? Center(child: CircularProgressIndicator())
               : buildShopFilterView(),
           Center(child: Text("Categories")),
-          Center(child: Text("Checkout")),
+          Center(child: Text("Complaint")),
           Center(child: Text("Profile")),
         ],
       ),

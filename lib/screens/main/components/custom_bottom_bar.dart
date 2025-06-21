@@ -22,8 +22,8 @@ class CustomBottomBar extends StatelessWidget {
             onPressed: () => controller.animateTo(1),
           ),
           IconButton(
-            icon: SvgPicture.asset(
-                'assets/icons/complaint_icon.svg'), // Use your complaint SVG/icon
+            icon: Image.asset(
+                'assets/icons/category_icon.png'), // Use your complaint SVG/icon
             onPressed: () {
               Navigator.push(
                 context,

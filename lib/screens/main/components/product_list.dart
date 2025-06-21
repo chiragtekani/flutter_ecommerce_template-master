@@ -12,9 +12,40 @@ class ProductList extends StatelessWidget {
   ProductList({required this.products});
 
   @override
+  @override
   Widget build(BuildContext context) {
     double cardHeight = MediaQuery.of(context).size.height / 2.7;
     double cardWidth = MediaQuery.of(context).size.width / 1.8;
+
+    if (products.isEmpty) {
+      return Container(
+        height: cardHeight,
+        width: double.infinity,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+            SizedBox(height: 12),
+            Text(
+              "No products found",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Try changing your filters or check back later.",
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
 
     return SizedBox(
       height: cardHeight,
@@ -33,28 +64,14 @@ class ProductList extends StatelessWidget {
           builder: (context, config) {
             if (config.itemCount > 20) {
               print(
-                  "The itemCount is too big, we suggest use FractionPaginationBuilder instead of DotSwiperPaginationBuilder in this sitituation");
+                  "The itemCount is too big, we suggest use FractionPaginationBuilder instead of DotSwiperPaginationBuilder in this situation");
             }
             Color activeColor = mediumYellow;
             Color color = Colors.grey.withOpacity(.3);
             double size = 10.0;
             double space = 5.0;
 
-            if (config.indicatorLayout != PageIndicatorLayout.NONE &&
-                config.layout == SwiperLayout.DEFAULT) {
-              return new PageIndicator(
-                count: config.itemCount,
-                controller: config.pageController!,
-                layout: config.indicatorLayout,
-                size: size,
-                activeColor: activeColor,
-                color: color,
-                space: space,
-              );
-            }
-
             List<Widget> dots = [];
-
             int itemCount = config.itemCount;
             int activeIndex = config.activeIndex;
 
