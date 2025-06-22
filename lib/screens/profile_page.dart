@@ -60,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 'email': email,
                 'phone': phone,
               })),
-    );
+  );
     if (result == true) {
       fetchUserProfile();
     }
