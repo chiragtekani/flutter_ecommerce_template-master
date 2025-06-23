@@ -67,7 +67,7 @@ class ApiService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final token = data['data']['token'] ?? data['access_token'];
-    
+
       if (token != null) {
         await saveToken(token);
       }
@@ -113,6 +113,19 @@ class ApiService {
       Uri.parse('$baseUrl/vendors/${shopId}/products'),
       headers: await getHeaders(),
     );
+  }
+
+  static Future<http.MultipartRequest> buildMultipartRequest(
+      String endpoint, Map<String, String> fields) async {
+    final uri = Uri.parse('$baseUrl/$endpoint');
+    final request = http.MultipartRequest('POST', uri);
+    request.fields.addAll(fields);
+    return request;
+  }
+
+  static Future<http.StreamedResponse> sendMultipartRequest(
+      http.MultipartRequest request) async {
+    return await request.send();
   }
 
   static Future<http.Response> addComplaint(Map<String, dynamic> body) async {

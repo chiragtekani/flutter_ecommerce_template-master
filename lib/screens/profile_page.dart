@@ -3,10 +3,7 @@ import 'dart:convert';
 import 'package:ecommerce_int2/api_service.dart';
 import 'package:ecommerce_int2/app_properties.dart';
 import 'package:ecommerce_int2/screens/complaint/my_complaints.dart';
-import 'package:ecommerce_int2/screens/faq_page.dart';
-import 'package:ecommerce_int2/screens/payment/payment_page.dart';
 import 'package:ecommerce_int2/screens/settings/settings_page.dart';
-import 'package:ecommerce_int2/screens/tracking_page.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
