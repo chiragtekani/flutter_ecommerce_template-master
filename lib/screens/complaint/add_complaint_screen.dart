@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:ecommerce_int2/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class AddComplaintScreen extends StatefulWidget {
   @override
@@ -13,6 +16,8 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
   final pinController = TextEditingController();
   final addressController = TextEditingController();
   final complaintController = TextEditingController();
+  File? selectedImage;
+  final ImagePicker _picker = ImagePicker();
 
   List<dynamic> districts = [];
   List<dynamic> talukas = [];
@@ -56,6 +61,15 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
     }
   }
 
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> fetchShops(int villageId) async {
     final response = await ApiService.getShopsByVillage(villageId);
     if (response.statusCode == 200) {
@@ -77,20 +91,28 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
 
     setState(() => isLoading = true);
 
-    final body = {
+    final Map<String, String> body = {
       "customer_name": nameController.text,
-      "village_id": selectedVillage,
-      "district_id": selectedDistrict,
-      "vendor_id": selectedShop,
-      "taluka_id": selectedTaluka,
-      "shop_name": shops
-          .firstWhere((shop) => shop['id'] == selectedShop)['name'], // optional
+      "village_id": selectedVillage.toString(),
+      "district_id": selectedDistrict.toString(),
+      "vendor_id": selectedShop.toString(),
+      "taluka_id": selectedTaluka.toString(),
+      "shop_name":
+          shops.firstWhere((shop) => shop['id'] == selectedShop)['name'],
       "pin_code": pinController.text,
       "address": addressController.text,
       "complaint": complaintController.text,
     };
 
-    final response = await ApiService.addComplaint(body);
+    var request = await ApiService.buildMultipartRequest("complaint/add", body);
+
+    if (selectedImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('image', selectedImage!.path),
+      );
+    }
+
+    final response = await ApiService.sendMultipartRequest(request);
 
     setState(() => isLoading = false);
 
@@ -192,6 +214,28 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
               _buildTextField(pinController, "Pin Code"),
               _buildTextField(addressController, "Address"),
               _buildTextField(complaintController, "Complaint", maxLines: 3),
+              SizedBox(height: 12),
+              Text("Attach Image (optional)",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.photo),
+                    label: Text("Pick Image"),
+                    onPressed: pickImage,
+                  ),
+                  SizedBox(width: 16),
+                  if (selectedImage != null)
+                    Expanded(
+                      child: Image.file(
+                        selectedImage!,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                ],
+              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: isLoading ? null : _submitComplaint,

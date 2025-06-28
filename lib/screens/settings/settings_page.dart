@@ -3,7 +3,6 @@ import 'package:ecommerce_int2/app_properties.dart';
 import 'package:ecommerce_int2/screens/auth/welcome_back_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatelessWidget {
   final Map<String, dynamic> profile;
