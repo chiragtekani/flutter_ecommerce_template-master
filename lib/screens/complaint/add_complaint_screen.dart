@@ -108,7 +108,7 @@ class _AddComplaintScreenState extends State<AddComplaintScreen> {
 
     if (selectedImage != null) {
       request.files.add(
-        await http.MultipartFile.fromPath('image', selectedImage!.path),
+        await http.MultipartFile.fromPath('attachment', selectedImage!.path),
       );
     }
 
